@@ -2,6 +2,14 @@
 
 Neuronal motif simulation tool including electrical and calcium recording
 
+<p align="center">
+    <img src="./docs/raster_plot.png" width="100%">
+</p>
+
+<p align="center">
+    <img src="./docs/calcium_signal.png" width="100%">
+</p>
+    
 
 ## How to use
 
