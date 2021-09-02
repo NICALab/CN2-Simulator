@@ -1,0 +1,5 @@
+# cache files
+**/*.ipynb_checkpoints/
+*.pyc
+*.pyo
+.vscode
