@@ -1,16 +1,17 @@
 import math
 import numpy as np
-from numpy.random import default_rng, choice
+from numpy.random import default_rng
 from tqdm import tqdm
 from .utils import insert_spike
 
-def non_motif_gen(params):
+def non_motif_gen(params, seed=None):
     """
     Generate non-motif-based spikes.
     When generating spikes, it considers the refractory period.
     
     Args:
         params: dictionary of configuration
+        seed: random seed
     
     Returns:
         spike_time: list of time of spikes for each neurons.
@@ -18,7 +19,7 @@ def non_motif_gen(params):
     """
     
     # initialize
-    rng = default_rng()
+    rng = default_rng(seed)
     NIDs = int(params["NIDs"])
     simulation_time = int(params["recording"]["recording_time"]) # seconds
     refractory_period = params["physiological"]["refractory_period"] # milliseconds
@@ -55,7 +56,7 @@ def non_motif_gen(params):
     
     return spike_time, spike_time_motif
 
-def motif_gen(spike_time, spike_time_motif, motif_type, params):
+def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
     """
     Generate motif-based spikes and insert to spike_time.
     When inserting spikes, it considers the refractory period.
@@ -66,6 +67,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         spike_time_motif: same as spike_time but only record motif-induced
         motif_type: type of motifs from 1 to 5.
         params: dictionary of configuration
+        seed: random seed
         
     Returns:
         ground_truth: list of dictionary containing ...
@@ -79,7 +81,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
             (Type 3)
                 lags: (double) list of time lag between spikes [float]
     """
-    rng = default_rng()
+    rng = default_rng(seed)
     NIDs = params["NIDs"]
     simulation_time = params["recording"]["recording_time"]
     refractory_period = params["physiological"]["refractory_period"]
@@ -93,7 +95,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         motifs = params["motif_type_1"]["motifs"]
         for motif in range(motifs):
             # choose neurons
-            tmp_neurons = choice(NIDs, neurons, replace=False)
+            tmp_neurons = rng.choice(NIDs, neurons, replace=False)
             ground_truth.append({"NIDs": tmp_neurons})
             # insert spikes
             tmp_spikes = []
@@ -115,7 +117,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         max_lags = params["motif_type_2"]["max_lags"] / 1000
         for motif in range(motifs):
             # choose neurons
-            tmp_neurons = choice(NIDs, neurons, replace=False)
+            tmp_neurons = rng.choice(NIDs, neurons, replace=False)
             ground_truth.append({"NIDs": tmp_neurons})
             # choose time lags
             tmp_lags = [0]
@@ -148,7 +150,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         
         for motif in range(motifs):
             # choose neurons
-            tmp_neurons = choice(NIDs, neurons, replace=False)
+            tmp_neurons = rng.choice(NIDs, neurons, replace=False)
             ground_truth.append({"NIDs": tmp_neurons})
             
             # choose neuron firing
@@ -158,7 +160,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
                 num_fire.append(int(rng.uniform(1, max_spikes + 1)))
             for _ in range(sum(num_fire)):
                 curr_nid = np.nonzero(num_fire)[0]
-                idx = choice(curr_nid, 1)[0]
+                idx = rng.choice(curr_nid, 1)[0]
                 fire_sequence.append(tmp_neurons[idx])
                 num_fire[idx] -= 1
                 
@@ -197,7 +199,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         window_rate = params["motif_type_4"]["window_rate"]
         for motif in range(motifs):
             # choose neurons
-            tmp_neurons = choice(NIDs, neurons, replace=False)
+            tmp_neurons = rng.choice(NIDs, neurons, replace=False)
             ground_truth.append({"NIDs": tmp_neurons})
             # insert spikes
             tmp_spikes = []
@@ -224,7 +226,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         max_lags = params["motif_type_5"]["max_lags"] / 1000
         for motif in range(motifs):
             # choose neurons
-            tmp_neurons = choice(NIDs, neurons, replace=False)
+            tmp_neurons = rng.choice(NIDs, neurons, replace=False)
             ground_truth.append({"NIDs": tmp_neurons})
             # choose time lags
             tmp_lags = [0]
@@ -254,13 +256,14 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params):
         raise Exception("not supported motif type")
         return False
 
-def create_calcium(spike_time, params):
+def create_calcium(spike_time, params, seed=None):
     """
     Generate calcium signal based on spike time and params.
     
     Arguments:
         spike_time: list of time of spikes for each neurons.
         params: dictionary of configuration
+        seed: random seed
     
     Returns:
         calcium_signal
@@ -274,7 +277,7 @@ def create_calcium(spike_time, params):
     frame_rate = int(params["recording"]["frame_rate"])         # Hz
     noise = float(params["recording"]["noise"])                 # Standard deviation
     
-    rng = np.random.default_rng()
+    rng = default_rng(seed)
     
     sample_arr = np.arange(1000/frame_rate, recording_time*1000, 1000/frame_rate).astype(int)
     sample_arr = sample_arr[sample_arr < recording_time * 1000]
