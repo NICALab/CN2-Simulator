@@ -13,7 +13,9 @@ Neuronal motif simulation tool including electrical and calcium recording
 
 ## How to use
 
-- Install dependencies through `conda create --name <env> --file conda_req.txt`, fill `<env>` for your own environment name.
+- Install dependencies through `conda env create -f environment.yml`.
+
+- Activate the conda environment through `conda activate SimulMotif`.
 
 - Follow `example.ipynb` to simulate neuron motif.
 

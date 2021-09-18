@@ -1,0 +1,12 @@
+name: SimulMotif
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - tqdm
+  - jupyterlab
+  - scipy
+  - pip
+  - pip:
+      - PyYAML
