@@ -268,7 +268,7 @@ def create_calcium(spike_time, params, seed=None):
     Returns:
         calcium_signal
     """
-    
+    # check arguments
     risetime = int(params["physiological"]["risetime"])   # milliseconds
     decaytime = int(params["physiological"]["decaytime"]) # milliseconds
     dF_F = float(params["physiological"]["dF_F"])         # ratio
@@ -277,6 +277,10 @@ def create_calcium(spike_time, params, seed=None):
     frame_rate = int(params["recording"]["frame_rate"])         # Hz
     noise = float(params["recording"]["noise"])                 # Standard deviation
     
+    if baseline < 0:
+        raise Exception("baseline must be larger or equal to 0")
+    
+    # sampling
     rng = default_rng(seed)
     
     sample_arr = np.arange(1000/frame_rate, recording_time*1000, 1000/frame_rate).astype(int)
@@ -304,6 +308,9 @@ def create_calcium(spike_time, params, seed=None):
         
         # add baseline and noise
         convolved_signal = convolved_signal + baseline + rng.normal(0, noise, recording_time * 1000)
+        
+        # calcium signal must be larger than 0
+        convolved_signal = np.maximum(convolved_signal, 0)
         
         # sampling
         convolved_signal = convolved_signal[sample_arr]
