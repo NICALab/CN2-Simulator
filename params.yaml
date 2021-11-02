@@ -8,18 +8,39 @@
 
 # Recording parameters:
 "recording":
-    "recording_time": 100  # Recording time (seconds)
+    "recording_time": 120  # Recording time (seconds)
     "frame_rate": 30       # Frame rate (Hz)
     "noise": 0.05          # Standard deviation of Gaussian noise
+    "microscopy": "SPIM"   # one of ["SPIM"(underdevelopment), "XLFM"(underdevelopment)]
+    "z_depth": 100         # depth of focal plane (micrometer) (underdevelopment)
+    "pixel_size": 0.8      # pixel size of a camera (micrometer) (underdevelopment)
+    "FOV": [2560, 2560]    # field of view of a camera (pixels) (underdevelopment)
+
 
 # Physiological parameters:
 "physiological":
     "refractory_period": 5 # Refractory period (milliseconds)
+    "preset": "jGCaMP8f"   # preset of "risetime", "decaytime", "dF_F"
+                           # one of ["jGCaMP8f", "jGCaMP8m", "jGCaMP7f", "Manual"]
     "risetime": 22         # Half-rise time (milliseconds)
     "decaytime": 142       # Half-decay time (milliseconds)
-    "dF_F": 0.3            # dF/F
-    "baseline": 1          # baseline
+    "dF_F": 0.3            # dF/F0
+    "photobleaching": 600  # Half-decay time of F0 following exponential function (seconds)
+    "baseline": [1, 1.1]   # baseline (F0)
+                           # each cell sampled from uniform distribution [a, b] as 
+                           # F0 depends on protein expression variability.
+                           # F = F0(1+dF/F0) + Normal(0, noise)
 
+# Neuronal shape parameters: (underdevelopment)
+"shape":
+    "type": "NLS"                   # type of neuronal expression.
+                                    # one of ["NLS", "cytosolic"(underdevelopment), "voltage"(underdevelopment)]
+    "diameter": 8                   # diameter of a neuron (micrometer)
+    "diameter_std": 0.5             # standard deviation of a diameter of a neuron (micrometer)
+    "diameter_nucleus": 5           # diameter of a nucleus of neurons (micrometer)
+    "diameter_nuclues_std": 0.25    # standard deviation of a diameter of a nucleus of neurons (micrometer)
+    "membrane_thickness": 0.2       # thickness of a membrane of neurons (micrometer)
+    
 
 ####################
 # NOISE parameters #

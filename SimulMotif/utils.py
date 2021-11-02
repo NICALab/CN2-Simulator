@@ -1,4 +1,36 @@
 from bisect import bisect_left
+import yaml
+
+def load_params(fname):
+    """
+    Load simulation parameters
+
+    Args:
+        fname: file name
+    """
+
+    with open(fname) as f:
+        params = yaml.load(f, Loader=yaml.FullLoader)
+    
+    # GECI presets
+    if params["physiological"]["preset"] == "jGCaMP8m":
+        params["physiological"]["risetime"] = 7.1
+        params["physiological"]["decaytime"] = 118.3
+        params["physiological"]["dF_F"] = 0.76
+    elif params["physiological"]["preset"] == "jGCaMP8f":
+        params["physiological"]["risetime"] = 7.1
+        params["physiological"]["decaytime"] = 67.4
+        params["physiological"]["dF_F"] = 0.41
+    elif params["physiological"]["preset"] == "jGCaMP8s":
+        params["physiological"]["risetime"] = 10.1
+        params["physiological"]["decaytime"] = 306.7
+        params["physiological"]["dF_F"] = 1.11
+    elif params["physiological"]["preset"] == "jGCaMP7f":
+        params["physiological"]["risetime"] = 24.8
+        params["physiological"]["decaytime"] = 181.9
+        params["physiological"]["dF_F"] = 0.21
+
+    return params
 
 def insert_spike(spike_times, spike_time_motif, nid, spiked, params):
     """
