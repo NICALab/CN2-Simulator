@@ -7,7 +7,6 @@ Comprehensive neuronal dynamics simulation tool including
 * voltage imaging
 * motif simulation
 
----
 
 ## Features
 
@@ -35,7 +34,6 @@ Comprehensive neuronal dynamics simulation tool including
   * synchronous firing rate increase
   * sequential firing rate increase
 
----
 
 ## How to use
 
@@ -51,7 +49,6 @@ Comprehensive neuronal dynamics simulation tool including
 
 - Visualize motifs with `SimulMotif/visualize.m`, which is a Matlab script.
 
----
 
 ## Figures
 <p align="center">
