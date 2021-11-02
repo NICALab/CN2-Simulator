@@ -1,6 +1,6 @@
-# Simul Motif
+# CN2 Simulator
 
-Comprehensive neuronal dynamics simulation tool including 
+Computational Neuroscientists' Comprehensive Neuronal Simulator including 
 
 * electrophysiological recording
 * calcium imaging
@@ -34,6 +34,14 @@ Comprehensive neuronal dynamics simulation tool including
   * synchronous firing rate increase
   * sequential firing rate increase
 
+
+## Applications
+
+* benchmarks
+  * computational microscopy
+  * cell extraction
+  * spike deconvolution
+  * motif mining
 
 ## How to use
 
