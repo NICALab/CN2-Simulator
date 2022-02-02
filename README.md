@@ -47,9 +47,11 @@ Computational Neuroscientists' Comprehensive Neuronal Simulator including
 
 - Install dependencies through `conda env create -f environment.yml`.
 
-- Activate the conda environment through `conda activate SimulMotif`.
+- Activate the conda environment through `conda activate CN2Simulator`.
 
-- Follow `example.ipynb` to simulate neuron motif.
+- Follow tutorials
+  - Follow `tutorials/example.ipynb` to simulate neuron motif.
+  - Follow `tutorials/imaging.py` to simulate calcium imaging.
 
 - One can change `params.yaml` for different simulation settings.
 

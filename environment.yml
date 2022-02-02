@@ -1,4 +1,4 @@
-name: SimulMotif
+name: CN2Simulator
 channels:
   - defaults
 dependencies:
