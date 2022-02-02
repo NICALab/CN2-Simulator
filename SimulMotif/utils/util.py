@@ -73,6 +73,14 @@ def insert_spike(spike_times, spike_time_motif, nid, spiked, params):
     
     return None
 
+def bin_spike_times(spike_times):
+    NIDs = len(spike_times)
+    binned_spike_times = [[] for _ in range(NIDs)] # initialize entire spike time list
+    for idx, nid_spike in enumerate(spike_times):
+        for spike in nid_spike:
+            pass
+            #binned_spike_times[idx] = 
+
     
 if __name__=="__main__":
     # test 1
