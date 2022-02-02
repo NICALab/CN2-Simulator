@@ -4,17 +4,20 @@
 ########################
 
 # General parameters
-"NIDs": 100               # Total number of neurons
+"NIDs": 100                # Total number of neurons
+                           # It is automatically set on calcium imaging mode
 
 # Recording parameters:
 "recording":
-    "recording_time": 120  # Recording time (seconds)
+    "recording_time": 30   # Recording time (seconds)
     "frame_rate": 30       # Frame rate (Hz)
-    "noise": 0.05          # Standard deviation of Gaussian noise
-    "microscopy": "SPIM"   # one of ["SPIM"(underdevelopment), "XLFM"(underdevelopment)]
+    "noise": 0.00          # Standard deviation of Gaussian noise
+    "microscopy": "raw"    # one of ["raw", "SPIM"(underdevelopment), "XLFM"(underdevelopment)]
+                           # "raw": original cell structure itself
     "z_depth": 100         # depth of focal plane (micrometer) (underdevelopment)
     "pixel_size": 0.8      # pixel size of a camera (micrometer) (underdevelopment)
-    "FOV": [2560, 2560]    # field of view of a camera (pixels) (underdevelopment)
+    "FOV": [128, 128]      # field of view of a camera (pixels) (underdevelopment)
+                           # can be 2d or 3d
 
 
 # Physiological parameters:
@@ -34,12 +37,14 @@
 # Neuronal shape parameters: (underdevelopment)
 "shape":
     "type": "NLS"                   # type of neuronal expression.
-                                    # one of ["NLS", "cytosolic"(underdevelopment), "voltage"(underdevelopment)]
+                                    # one of ["NLS", "cytosolic"(underdevelopment), "soma"(underdevelopment), "voltage"(underdevelopment)]
+                                    # "NLS": Nuclear localized
     "diameter": 8                   # diameter of a neuron (micrometer)
     "diameter_std": 0.5             # standard deviation of a diameter of a neuron (micrometer)
     "diameter_nucleus": 5           # diameter of a nucleus of neurons (micrometer)
-    "diameter_nuclues_std": 0.25    # standard deviation of a diameter of a nucleus of neurons (micrometer)
+    "diameter_nucleus_std": 0.25    # standard deviation of a diameter of a nucleus of neurons (micrometer)
     "membrane_thickness": 0.2       # thickness of a membrane of neurons (micrometer)
+    "distance": [20, 30]            # min/max distance between neuron and neuron (micrometer)
     
 
 ####################
@@ -48,7 +53,7 @@
 
 # Background spikes (Additive noise)
 "background":
-    "firing_rate": [0.6, 1]      # mean firing rate (Hz)
+    "firing_rate": [1, 1]      # mean firing rate (Hz)
                                  # For each neuron, mean firing rate ~ uniform distribution range "low" to "high"
     "peak_to_mean": 0            # (Peak firing rate - mean firing rate) / mean firing rate
                                  # If 0, stationary firing. Cannot be larger than 1.
@@ -58,7 +63,7 @@
     
 # Noise parameters
 "noise":
-    "probabilistic_participation": 1    # probability of a single spike of a motif to appear
+    "probabilistic_participation": 0.96    # probability of a single spike of a motif to appear
                                         # 1: every spike participate.
     "temporal_jitter": 0                # standard deviation (milliseconds)
     "time_warping": 0                   # max additional stretching (percentage) 
@@ -71,9 +76,9 @@
 
 # type 1 motif: Synchronously firing neurons
 "motif_type_1":
-    "firing_rate": 0.3   # firing rate of each motif
+    "firing_rate": 0.45  # firing rate of each motif
     "neurons": 5         # the number of neurons in each motif
-    "motifs": 10         # the number of motifs
+    "motifs": 1          # the number of motifs
 
 # type 2 motif: Sequentially firing neurons
 "motif_type_2":
