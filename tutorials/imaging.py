@@ -6,6 +6,7 @@ from scipy.io import savemat
 from CN2Simulator.utils.util import load_params
 from CN2Simulator.motif_gen import *
 from CN2Simulator.calcium_imaging import create_calcium, draw_calcium_image
+from CN2Simulator.microscopy import record
 
 
 if __name__=="__main__":
@@ -14,6 +15,7 @@ if __name__=="__main__":
 
     # Convert to calcium imaging format
     calcium_image, ground_truth = draw_calcium_image(params)
+    calcium_image = record(calcium_image, params, seed=0)
 
     # save spike time and motifs
     ground_truth["spike_time"] = np.array(ground_truth["spike_time"], dtype=object)

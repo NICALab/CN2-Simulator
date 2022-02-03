@@ -9,11 +9,12 @@
 
 # Recording parameters:
 "recording":
-    "recording_time": 30   # Recording time (seconds)
+    "recording_time": 10   # Recording time (seconds)
     "frame_rate": 30       # Frame rate (Hz)
-    "noise": 0.00          # Standard deviation of Gaussian noise
-    "microscopy": "raw"    # one of ["raw", "SPIM"(underdevelopment), "XLFM"(underdevelopment)]
-                           # "raw": original cell structure itself
+    "gaussian_noise": 0.05 # standard deviation of Guassian noise
+    "shot_noise": 0.05     # (underdevelopment) Poisson noise
+    "microscopy": "raw"    # one of ["raw", "LSM"(underdevelopment), "XLFM"(underdevelopment)]
+                           # "raw": original calcium signal itself
     "z_depth": 100         # depth of focal plane (micrometer) (underdevelopment)
     "pixel_size": 0.8      # pixel size of a camera (micrometer) (underdevelopment)
     "FOV": [128, 128]      # field of view of a camera (pixels) (underdevelopment)
@@ -44,7 +45,7 @@
     "diameter_nucleus": 5           # diameter of a nucleus of neurons (micrometer)
     "diameter_nucleus_std": 0.25    # standard deviation of a diameter of a nucleus of neurons (micrometer)
     "membrane_thickness": 0.2       # thickness of a membrane of neurons (micrometer)
-    "distance": [20, 30]            # min/max distance between neuron and neuron (micrometer)
+    "distance": [5, 10]            # min/max distance between neuron and neuron (micrometer)
     
 
 ####################
