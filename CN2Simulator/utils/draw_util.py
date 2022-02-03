@@ -1,14 +1,16 @@
+import math
 import numpy as np
 
+from skimage.transform import resize
 from scipy import ndimage
 
 
-def create_NLS_neuron_2d(radius, angle, sigma=1.4):
+def create_NLS_neuron_2d(radius, angle, sigma=1.4, interpolation_ratio=2):
     """
     Create nuclear localized calcium intensity
 
     Arguments:
-        radius: the radius of ellipse in pixels ([int])
+        radius: the radius of ellipse in pixels ([float])
         angle: the ccw rotation angle in degrees (float)
         sigma: the gaussian sigma (float)
 
@@ -18,12 +20,16 @@ def create_NLS_neuron_2d(radius, angle, sigma=1.4):
     # check arguments
     if len(radius) != 2:
         raise Exception("length of radius must be 2")
-    if False in [type(i) == int for i in radius]:
-        raise Exception("elements of radius must be an integer")
+    if False in [type(i) in [float, int] for i in radius]:
+        raise Exception("elements of radius must be a float or an integer")
     if not (type(sigma) in [float, int]):
         raise Exception("sigma must be a float or an integer")
     if not (type(angle) in [float, int]):
         raise Exception("angle must be a float or an integer")
+
+    # for interpolation
+    original_radius = radius
+    radius = [int(i * interpolation_ratio) for i in radius]
     
     # mask
     x, y = np.meshgrid(np.arange(-radius[0], radius[0]+1), np.arange(-radius[1], radius[1]+1))
@@ -38,12 +44,19 @@ def create_NLS_neuron_2d(radius, angle, sigma=1.4):
     # rotation
     neuron = ndimage.rotate(neuron, angle=angle)
 
+    # (interpolation) zoom
+    # neuron = ndimage.zoom(neuron, 1/interpolation_ratio)
+    neuron = resize(neuron, [2*math.ceil(i)+1 for i in original_radius])
+
+    # positive
+    neuron = np.maximum(neuron, 0)
+
     return neuron
 
 
 def generate_centers(shape, min_dist, max_dist, seed=0, discard_negatives=False):
     """
-    Generate centers according to the density uniformly
+    Generate centers according to the distance between neurons
 
     Arguments:
         shape: shape of the image or volume ([int])
@@ -100,17 +113,17 @@ def gaussian_kernel(sigma):
 
 
 if __name__=="__main__":
-    if True:
+    if False:
         import skimage.io as skio
         coords = generate_centers([100, 100], min_dist=10, max_dist=20)
         image = np.zeros([100, 100], dtype=np.float32)
         for i in coords:
             image[i[0], i[1]] = 1
         skio.imsave("centers.tif", image)
-    if False:
+    if True:
         import skimage.io as skio
-        mask = create_NLS_neuron_2d(radius=[40, 30], angle=0)
-        skio.imsave("NLS_mask.tif", mask)
+        mask = create_NLS_neuron_2d(radius=[10, 10], angle=0, interpolation_ratio=64)
+        skio.imsave("./generated_data/NLS_mask_64.tif", mask)
     if False:
         import skimage.io as skio
         gauss = gaussian_kernel(sigma=1)
