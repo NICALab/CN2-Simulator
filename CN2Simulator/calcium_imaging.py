@@ -26,7 +26,6 @@ def create_calcium(spike_time, params, seed=0):
     baseline_high = float(params["physiological"]["baseline"][1])
     recording_time = int(params["recording"]["recording_time"]) #seconds
     frame_rate = int(params["recording"]["frame_rate"])         # Hz
-    noise = float(params["recording"]["noise"])                 # Standard deviation
     
     if baseline_low < 0:
         raise Exception("baseline must be larger or equal to 0")
@@ -64,7 +63,6 @@ def create_calcium(spike_time, params, seed=0):
         baseline_photobleach = np.linspace(0, recording_time, recording_time*1000)
         baseline_photobleach = np.exp2(-baseline_photobleach / photobleaching)
         convolved_signal = baseline * baseline_photobleach * (convolved_signal + 1)
-        convolved_signal += rng.normal(0, noise, recording_time * 1000)
         
         # calcium signal must be larger than 0
         convolved_signal = np.maximum(convolved_signal, 0)
@@ -105,6 +103,8 @@ def draw_calcium_image(params, seed=0):
     distance = np.array(params["shape"]["distance"]) / pixel_size               # in pixels
     distance = distance.tolist()
 
+    rng = default_rng(seed=seed)
+
     # generate centers
     centers = generate_centers(fov, min_dist=distance[0],\
         max_dist=distance[1], seed=seed)
@@ -139,7 +139,11 @@ def draw_calcium_image(params, seed=0):
     # generate calcium image
     calcium_image = np.zeros([calcium_signal.shape[1], *fov], dtype=np.float32)
     for idx, center in enumerate(tqdm(centers, desc="generating calicum image")):
-        neuron = create_NLS_neuron_2d([int(diameter_nucleus/2), int(diameter_nucleus/2)], angle=0)
+        diameter_1 = rng.normal(diameter_nucleus, diameter_nucleus_std)
+        diameter_2 = rng.normal(diameter_nucleus, diameter_nucleus_std)
+        random_angle = rng.uniform(0, 360)
+        # TODO: non-zero angle
+        neuron = create_NLS_neuron_2d([diameter_1/2, diameter_2/2], angle=0, interpolation_ratio=4)
         calcium_image_neuron = np.outer(calcium_signal[idx], neuron)
         calcium_image_neuron = np.reshape(calcium_image_neuron, [-1] + list(neuron.shape))
 
