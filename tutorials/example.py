@@ -1,16 +1,15 @@
-import yaml
 import numpy as np
-import skimage.io as skio
 
 from scipy.io import savemat
-from SimulMotif.motif_gen import *
-from SimulMotif.calcium_imaging import create_calcium, draw_calcium_image
+
+from CN2Simulator.utils.util import load_params
+from CN2Simulator.motif_gen import *
+from CN2Simulator.calcium_imaging import create_calcium, draw_calcium_image
 
 
 if __name__=="__main__":
     # Load simulation parameters
-    with open("params.yaml") as f:
-        params = yaml.load(f, Loader=yaml.FullLoader)
+    params = load_params("params.yaml")
 
     # Genereate non-motif activity
     # spike_time: list containing every spikes
@@ -18,24 +17,20 @@ if __name__=="__main__":
     spike_time, spike_time_motif = non_motif_gen(params, seed=0)
 
     # Generate motif activity
-    # # (Type 1) Precise synchronous spikes
-    # gt1 = motif_gen(spike_time, spike_time_motif, 1, params, seed=1)
-    # # (Type 2) Precise sequential spikes
-    # gt2 = motif_gen(spike_time, spike_time_motif, 2, params, seed=2)
-    # # (Type 3) Precise temporal pattern
-    # gt3 = motif_gen(spike_time, spike_time_motif, 3, params, seed=3)
-    # # (Type 4) Rate-based synchronous pattern
-    # gt4 = motif_gen(spike_time, spike_time_motif, 4, params, seed=4)
-    # # (Type 5) Rate-based sequential pattern
-    # gt5 = motif_gen(spike_time, spike_time_motif, 5, params, seed=5)
+    # (Type 1) Precise synchronous spikes
+    gt1 = motif_gen(spike_time, spike_time_motif, 1, params, seed=1)
+    # (Type 2) Precise sequential spikes
+    gt2 = motif_gen(spike_time, spike_time_motif, 2, params, seed=2)
+    # (Type 3) Precise temporal pattern
+    gt3 = motif_gen(spike_time, spike_time_motif, 3, params, seed=3)
+    # (Type 4) Rate-based synchronous pattern
+    gt4 = motif_gen(spike_time, spike_time_motif, 4, params, seed=4)
+    # (Type 5) Rate-based sequential pattern
+    gt5 = motif_gen(spike_time, spike_time_motif, 5, params, seed=5)
 
     # Convert to calcium imaging format
-    if True:
+    if False:
         calcium_signal = create_calcium(spike_time, params, seed=6)
-        calcium_image = draw_calcium_image(calcium_signal, params)
-        import skimage.io as skio
-        skio.imsave("test.tif", calcium_image)
-        exit()
 
     # save spike time and motifs
     spike_time = np.array(spike_time, dtype=object)

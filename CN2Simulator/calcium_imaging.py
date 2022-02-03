@@ -2,8 +2,8 @@ import numpy as np
 from numpy.random import default_rng
 from tqdm import tqdm
 
-from SimulMotif.motif_gen import *
-from SimulMotif.utils.draw_util import create_NLS_neuron_2d, generate_centers
+from CN2Simulator.motif_gen import *
+from CN2Simulator.utils.draw_util import create_NLS_neuron_2d, generate_centers
 
 def create_calcium(spike_time, params, seed=0):
     """

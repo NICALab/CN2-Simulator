@@ -1,7 +1,7 @@
 import math
 import numpy as np
 from numpy.random import default_rng
-from .utils import insert_spike
+from CN2Simulator.utils.util import insert_spike
 
 def non_motif_gen(params, seed=None):
     """
@@ -26,6 +26,7 @@ def non_motif_gen(params, seed=None):
     firing_rate = params["background"]["firing_rate"] # Hz
     oscillation_frequency = params["background"]["oscillation_frequency"] # Hz
     coherent = params["background"]["coherent"] # Boolean
+    frame_rate = float(params["recording"]["frame_rate"]) # Hz
     spike_time = [[] for x in range(NIDs)]        # initialize entire spike time list
     spike_time_motif = [[] for x in range(NIDs)]  # initialize motif-induced spike time list
     
@@ -52,7 +53,7 @@ def non_motif_gen(params, seed=None):
             instant_rate = np.maximum(peak_to_mean * np.sin(rad_array + phases[NID]) + non_motif_rate, 0)
             spiked = np.nonzero(rng.binomial(1, instant_rate / 1000))[0]
             spike_time[NID] = list(t_array[spiked])
-    
+
     return spike_time, spike_time_motif
 
 def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):

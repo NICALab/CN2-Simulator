@@ -1,16 +1,16 @@
-import yaml
 import numpy as np
 import skimage.io as skio
 
 from scipy.io import savemat
-from SimulMotif.motif_gen import *
-from SimulMotif.calcium_imaging import create_calcium, draw_calcium_image
+
+from CN2Simulator.utils.util import load_params
+from CN2Simulator.motif_gen import *
+from CN2Simulator.calcium_imaging import create_calcium, draw_calcium_image
 
 
 if __name__=="__main__":
     # Load simulation parameters
-    with open("params.yaml") as f:
-        params = yaml.load(f, Loader=yaml.FullLoader)
+    params = load_params("params.yaml")
 
     # Convert to calcium imaging format
     calcium_image, ground_truth = draw_calcium_image(params)
