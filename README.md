@@ -45,6 +45,11 @@ Computational Neuroscientists' Comprehensive Neuronal Simulator including
 
 ## How to use
 
+### For package use
+- `pip install git+https://github.com/NICALab/CN2-Simulator.git`
+
+### For development 
+
 - Install dependencies through `conda env create -f environment.yml`.
 
 - Activate the conda environment through `conda activate CN2Simulator`.
