@@ -1,5 +1,7 @@
 import math
 import numpy as np
+
+from tqdm import tqdm
 from numpy.random import default_rng
 from CN2Simulator.utils.util import insert_spike
 
@@ -26,18 +28,32 @@ def non_motif_gen(params, seed=None):
     firing_rate = params["background"]["firing_rate"] # Hz
     oscillation_frequency = params["background"]["oscillation_frequency"] # Hz
     coherent = params["background"]["coherent"] # Boolean
+    burst = np.array(params["background"]["burst"]) # probability
+    burst = burst / np.sum(burst)
+    intra_burst_time = params["background"]["intra_burst_time"] # milliseconds
     frame_rate = float(params["recording"]["frame_rate"]) # Hz
     spike_time = [[] for x in range(NIDs)]        # initialize entire spike time list
     spike_time_motif = [[] for x in range(NIDs)]  # initialize motif-induced spike time list
     
     # draw spike times
     if peak_to_mean == 0: # stationary
-        for NID in range(NIDs):
+        for NID in tqdm(range(NIDs)):
             non_motif_rate = rng.uniform(firing_rate[0], firing_rate[1])
-            spiked = rng.exponential(1/non_motif_rate)
-            while spiked <= simulation_time:
-                spike_time[NID].append(spiked)
-                spiked += rng.exponential(1/non_motif_rate) + refractory_period / 1000
+            spiked = 0
+            while True:
+                burst_time = rng.choice(len(burst), 1, p=burst)[0] + 1
+                spiked += rng.exponential(1/non_motif_rate) # + refractory_period / 1000
+                for i in range(burst_time):
+                    if spiked <= simulation_time:
+                        spike_time[NID].append(spiked)
+                    else:
+                        break
+                    if i == burst_time - 1:
+                        spiked += (refractory_period / 1000)
+                    else:
+                        spiked += (rng.uniform(*intra_burst_time) / 1000)
+                if spiked > simulation_time:
+                    break
     else: # nonstationary
         # draw phase
         if coherent:

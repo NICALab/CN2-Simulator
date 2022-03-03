@@ -1,4 +1,13 @@
 ---
+#########################
+# Simulation parameters #
+#########################
+
+"simulation":
+    "unit": 0.1            # The minimum unit of simulation (micromters)
+                           # smaller value can burden process and memory
+
+
 ########################
 # RECORDING parameters #
 ########################
@@ -9,15 +18,18 @@
 
 # Recording parameters:
 "recording":
-    "recording_time": 10   # Recording time (seconds)
+    "recording_time": 300  # Recording time (seconds)
     "frame_rate": 30       # Frame rate (Hz)
-    "gaussian_noise": 0.05 # standard deviation of Guassian noise
+    "gaussian_noise": 0.05 # standard deviation of Gaussian noise
     "shot_noise": 0.05     # (underdevelopment) Poisson noise
-    "microscopy": "raw"    # one of ["raw", "LSM"(underdevelopment), "XLFM"(underdevelopment)]
+    "microscopy": "LSM"    # one of ["raw", "LSM"(underdevelopment), "LFM"(underdevelopment), "XLFM"(underdevelopment)]
                            # "raw": original calcium signal itself
+                           # "LSM": Light Sheet Microscopy
+                           # "LFM": Light Field Microscopy
+                           # "XLFM": eXtended field of view LFM
     "z_depth": 100         # depth of focal plane (micrometer) (underdevelopment)
     "pixel_size": 0.8      # pixel size of a camera (micrometer) (underdevelopment)
-    "FOV": [128, 128]      # field of view of a camera (pixels) (underdevelopment)
+    "FOV": [256, 256, 256] # field of view of a camera (pixels) (underdevelopment)
                            # can be 2d or 3d
 
 
@@ -33,19 +45,22 @@
     "baseline": [1, 1.1]   # baseline (F0)
                            # each cell sampled from uniform distribution [a, b] as 
                            # F0 depends on protein expression variability.
-                           # F = F0(1+dF/F0) + Normal(0, noise)
+                           # F = F0(1+dF/F0) + Normal(0, gaussian_noise)
 
 # Neuronal shape parameters: (underdevelopment)
 "shape":
     "type": "NLS"                   # type of neuronal expression.
-                                    # one of ["NLS", "cytosolic"(underdevelopment), "soma"(underdevelopment), "voltage"(underdevelopment)]
-                                    # "NLS": Nuclear localized
+                                    # one of ["NLS", "cytosolic"(underdevelopment), "soma"(underdevelopment), "membrane"(underdevelopment)]
+                                    # "NLS": Nuclear localized expression
+                                    # "cytosolic": cytosol expression
+                                    # "soma": soma-targeted expression
+                                    # "membrane": membrane-targeted expression
     "diameter": 8                   # diameter of a neuron (micrometer)
     "diameter_std": 0.5             # standard deviation of a diameter of a neuron (micrometer)
     "diameter_nucleus": 5           # diameter of a nucleus of neurons (micrometer)
-    "diameter_nucleus_std": 0.25    # standard deviation of a diameter of a nucleus of neurons (micrometer)
+    "diameter_nucleus_std": 0.20    # standard deviation of a diameter of a nucleus of neurons (micrometer)
     "membrane_thickness": 0.2       # thickness of a membrane of neurons (micrometer)
-    "distance": [5, 10]            # min/max distance between neuron and neuron (micrometer)
+    "distance": [5, 20]             # min/max distance between neuron and neuron (micrometer)
     
 
 ####################
@@ -54,17 +69,23 @@
 
 # Background spikes (Additive noise)
 "background":
-    "firing_rate": [1, 1]      # mean firing rate (Hz)
+    "firing_rate": [1, 1]        # mean firing rate (Hz)
                                  # For each neuron, mean firing rate ~ uniform distribution range "low" to "high"
     "peak_to_mean": 0            # (Peak firing rate - mean firing rate) / mean firing rate
                                  # If 0, stationary firing. Cannot be larger than 1.
     "oscillation_frequency": 1   # sinusoidal oscillation frequency (Hz)
     "coherent": False            # If True, oscillation phase is equal to all neurons.
                                  # Otherwise, phase is independently chosen.
+
+    # Currently bursting is only available on stationary firing mode.
+    "burst": [10, 0]             # Probability of burstings. Linearly normalizes to make the sum as 1.
+                                 # e.g.) [3, 1, 1]: 20% of spikes are doublet and another 20% are triplet.
+    "intra_burst_time": [5, 6]   # min/max time between bursting spikes (milliseconds)
+                                 # chosen from uniform distribution
     
 # Noise parameters
 "noise":
-    "probabilistic_participation": 0.96    # probability of a single spike of a motif to appear
+    "probabilistic_participation": 1    # probability of a single spike of a motif to appear
                                         # 1: every spike participate.
     "temporal_jitter": 0                # standard deviation (milliseconds)
     "time_warping": 0                   # max additional stretching (percentage) 

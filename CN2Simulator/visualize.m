@@ -114,4 +114,12 @@ for idx = 1:length(NIDs)
     plot(tmp_xPoints, tmp_yPoints, 'r');
 end
 
-
+%% interspike interval histogram
+isi = [];
+for nid = 1:length(spike_time)
+    a = spike_time{nid};
+    for i = 1:length(a)-1
+        isi = [isi, a(i+1)-a(i)];
+    end
+end
+histogram(isi, 700);

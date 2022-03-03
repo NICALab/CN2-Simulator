@@ -1,3 +1,4 @@
+import warnings
 from bisect import bisect_left
 import yaml
 
@@ -29,6 +30,9 @@ def load_params(fname):
         params["physiological"]["risetime"] = 24.8
         params["physiological"]["decaytime"] = 181.9
         params["physiological"]["dF_F"] = 0.21
+    
+    if params["background"]["intra_burst_time"][0] < params["physiological"]["refractory_period"]:
+        warnings.warn("intra burst time is currently shorter than the refractory period")
 
     return params
 
