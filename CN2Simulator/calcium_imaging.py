@@ -68,7 +68,7 @@ def create_calcium(spike_time, params, add_noise=False, seed=0):
         
         # add baseline and noise
         baseline = rng.uniform(baseline_low, baseline_high)
-        if photobleaching == -1:
+        if photobleaching == 0:
             baseline_photobleach = 1
         else:
             baseline_photobleach = np.linspace(0, recording_time, recording_time*1000)
