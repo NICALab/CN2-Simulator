@@ -28,8 +28,9 @@ def non_motif_gen(params, seed=None):
     firing_rate = params["background"]["firing_rate"] # Hz
     oscillation_frequency = params["background"]["oscillation_frequency"] # Hz
     coherent = params["background"]["coherent"] # Boolean
-    burst = np.array(params["background"]["burst"]) # probability
-    burst = burst / np.sum(burst)
+    # burst = np.array(params["background"]["burst"]) # probability
+    # burst = burst / np.sum(burst)
+    burst_lambda = params["background"]["burst_lambda"]
     intra_burst_time = params["background"]["intra_burst_time"] # milliseconds
     frame_rate = float(params["recording"]["frame_rate"]) # Hz
     spike_time = [[] for x in range(NIDs)]        # initialize entire spike time list
@@ -37,11 +38,12 @@ def non_motif_gen(params, seed=None):
     
     # draw spike times
     if peak_to_mean == 0: # stationary
-        for NID in tqdm(range(NIDs)):
+        for NID in tqdm(range(NIDs), desc="Generating non-motif spikes"):
             non_motif_rate = rng.uniform(firing_rate[0], firing_rate[1])
             spiked = 0
             while True:
-                burst_time = rng.choice(len(burst), 1, p=burst)[0] + 1
+                # burst_time = rng.choice(len(burst), 1, p=burst)[0] + 1 
+                burst_time = 1 + rng.poisson(lam=burst_lambda)
                 spiked += rng.exponential(1/non_motif_rate) # + refractory_period / 1000
                 for i in range(burst_time):
                     if spiked <= simulation_time:

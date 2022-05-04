@@ -41,7 +41,8 @@
     "risetime": 22         # Half-rise time (milliseconds)
     "decaytime": 142       # Half-decay time (milliseconds)
     "dF_F": 0.3            # dF/F0
-    "photobleaching": 600  # Half-decay time of F0 following exponential function (seconds)
+    "photobleaching": 0    # Half-decay time of F0 following exponential function (seconds)
+                           # If 0, no photobleaching.
     "baseline": [1, 1.1]   # baseline (F0)
                            # each cell sampled from uniform distribution [a, b] as 
                            # F0 depends on protein expression variability.
@@ -78,8 +79,8 @@
                                  # Otherwise, phase is independently chosen.
 
     # Currently bursting is only available on stationary firing mode.
-    "burst": [10, 0]             # Probability of burstings. Linearly normalizes to make the sum as 1.
-                                 # e.g.) [3, 1, 1]: 20% of spikes are doublet and another 20% are triplet.
+    "burst_lambda": 1            # The number of spikes in each burst follows the Poission process
+                                 # The number of spikes = 1 + Poisson(lambda=burst_lambda)
     "intra_burst_time": [5, 6]   # min/max time between bursting spikes (milliseconds)
                                  # chosen from uniform distribution
     
