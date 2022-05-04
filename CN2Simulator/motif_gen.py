@@ -5,7 +5,7 @@ from tqdm import tqdm
 from numpy.random import default_rng
 from CN2Simulator.utils.util import insert_spike
 
-def non_motif_gen(params, seed=None):
+def non_motif_gen(params, seed=None, verbose=True):
     """
     Generate non-motif-based spikes.
     When generating spikes, it considers the refractory period.
@@ -37,8 +37,13 @@ def non_motif_gen(params, seed=None):
     spike_time_motif = [[] for x in range(NIDs)]  # initialize motif-induced spike time list
     
     # draw spike times
+    if verbose:
+        NIDs_range = tqdm(range(NIDs), desc="Generating non-motif spikes")
+    else:
+        NIDs_range = range(NIDs)
+        
     if peak_to_mean == 0: # stationary
-        for NID in tqdm(range(NIDs), desc="Generating non-motif spikes"):
+        for NID in NIDs_range:
             non_motif_rate = rng.uniform(firing_rate[0], firing_rate[1])
             spiked = 0
             while True:
