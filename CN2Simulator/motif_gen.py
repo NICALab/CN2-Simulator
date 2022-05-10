@@ -37,17 +37,13 @@ def non_motif_gen(params, seed=None, verbose=True):
     spike_time_motif = [[] for x in range(NIDs)]  # initialize motif-induced spike time list
     
     # draw spike times
-    if verbose:
-        NIDs_range = tqdm(range(NIDs), desc="Generating non-motif spikes")
-    else:
-        NIDs_range = range(NIDs)
-        
+    NIDs_range = tqdm(range(NIDs), desc="Generating non-motif spikes") if verbose else range(NIDs)
+
     if peak_to_mean == 0: # stationary
         for NID in NIDs_range:
             non_motif_rate = rng.uniform(firing_rate[0], firing_rate[1])
             spiked = 0
             while True:
-                # burst_time = rng.choice(len(burst), 1, p=burst)[0] + 1 
                 burst_time = 1 + rng.poisson(lam=burst_lambda)
                 spiked += rng.exponential(1/non_motif_rate) # + refractory_period / 1000
                 for i in range(burst_time):
@@ -131,7 +127,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
                 tmp_spikes.append(spiked)
                 spiked += rng.exponential(1/firing_rate) + refractory_period / 1000
             ground_truth[-1]["motif_times"] = tmp_spikes
-        return ground_truth
+        
     elif motif_type == 2: # Precise sequential spikes
         firing_rate = params["motif_type_2"]["firing_rate"]
         neurons = params["motif_type_2"]["neurons"]
@@ -162,7 +158,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
                 tmp_spikes.append(spiked)
                 spiked += rng.exponential(1/firing_rate) + refractory_period / 1000
             ground_truth[-1]["motif_times"] = tmp_spikes
-        return ground_truth
+
     elif motif_type == 3: # Precise temporal pattern
         firing_rate = params["motif_type_3"]["firing_rate"]
         neurons = params["motif_type_3"]["neurons"]
@@ -213,7 +209,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
                 tmp_spikes.append(spiked)
                 spiked += rng.exponential(1/firing_rate) + refractory_period / 1000
             ground_truth[-1]["motif_times"] = tmp_spikes
-        return ground_truth
+
     elif motif_type == 4: # Rate-based synchronous pattern
         firing_rate = params["motif_type_4"]["firing_rate"]
         neurons = params["motif_type_4"]["neurons"]
@@ -238,7 +234,7 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
                 tmp_spikes.append(spiked)
                 spiked += rng.exponential(1/firing_rate) + refractory_period / 1000
             ground_truth[-1]["motif_times"] = tmp_spikes
-        return ground_truth
+
     elif motif_type == 5: # Rate-based sequential pattern
         firing_rate = params["motif_type_5"]["firing_rate"]
         neurons = params["motif_type_5"]["neurons"]
@@ -274,11 +270,35 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
                 tmp_spikes.append(spiked)
                 spiked += rng.exponential(1/firing_rate) + refractory_period / 1000
             ground_truth[-1]["motif_times"] = tmp_spikes
-        return ground_truth
+
     else:
         raise Exception("not supported motif type")
         return False
     
+    # check results
+    for spike_time_nid in spike_time:
+        last_index = None
+        for idx, spike_time_nid_t in enumerate(reversed(spike_time_nid)):
+            if spike_time_nid_t < simulation_time:
+                last_index = idx
+                break
+        if last_index is None:
+            continue
+        spike_time_nid = spike_time_nid[-last_index]
+
+    for spike_time_nid in spike_time_motif:
+        last_index = None
+        for idx, spike_time_nid_t in enumerate(reversed(spike_time_nid)):
+            if spike_time_nid_t < simulation_time:
+                last_index = idx
+                break
+        if last_index is None:
+            continue
+        spike_time_nid = spike_time_nid[-last_index]
+    
+    import pdb; pdb.set_trace()
+
+    return ground_truth
     
 if __name__=="__main__":
     # (type 1) motif test
