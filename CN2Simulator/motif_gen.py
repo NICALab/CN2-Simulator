@@ -276,26 +276,26 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
         return False
     
     # check results
-    for spike_time_nid in spike_time:
+    for idx_1, spike_time_nid in enumerate(spike_time):
         last_index = None
         for idx, spike_time_nid_t in enumerate(reversed(spike_time_nid)):
             if spike_time_nid_t < simulation_time:
                 last_index = idx
                 break
-        if last_index is None:
+        if (last_index is None) or (last_index == 0):
             continue
-        spike_time_nid = spike_time_nid[-last_index]
+        spike_time[idx_1] = spike_time_nid[:-last_index]
 
-    for spike_time_nid in spike_time_motif:
+    for idx_1, spike_time_nid in enumerate(spike_time_motif):
         last_index = None
         for idx, spike_time_nid_t in enumerate(reversed(spike_time_nid)):
             if spike_time_nid_t < simulation_time:
                 last_index = idx
                 break
-        if last_index is None:
+        if (last_index is None) or (last_index == 0):
             continue
-        spike_time_nid = spike_time_nid[-last_index]
-
+        spike_time_motif[idx_1] = spike_time_nid[:-last_index]
+    
     return ground_truth
     
 if __name__=="__main__":
