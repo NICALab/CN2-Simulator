@@ -295,8 +295,6 @@ def motif_gen(spike_time, spike_time_motif, motif_type, params, seed=None):
         if last_index is None:
             continue
         spike_time_nid = spike_time_nid[-last_index]
-    
-    import pdb; pdb.set_trace()
 
     return ground_truth
     
