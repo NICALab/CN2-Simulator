@@ -13,13 +13,13 @@
 ########################
 
 # General parameters
-"NIDs": 100                # Total number of neurons
+"NIDs": 7891               # Total number of neurons
                            # It is automatically set on calcium imaging mode
 
 # Recording parameters:
 "recording":
-    "recording_time": 300  # Recording time (seconds)
-    "frame_rate": 30       # Frame rate (Hz)
+    "recording_time": 1000  # Recording time (seconds)
+    "frame_rate": 16        # Frame rate (Hz)
     "gaussian_noise": 0.05 # standard deviation of Gaussian noise
     "shot_noise": 0.05     # (underdevelopment) Poisson noise
     "microscopy": "LSM"    # one of ["raw", "LSM"(underdevelopment), "LFM"(underdevelopment), "XLFM"(underdevelopment)]
@@ -36,14 +36,14 @@
 # Physiological parameters:
 "physiological":
     "refractory_period": 5 # Refractory period (milliseconds)
-    "preset": "jGCaMP8f"   # preset of "risetime", "decaytime", "dF_F"
+    "preset": "Manual"   # preset of "risetime", "decaytime", "dF_F"
                            # one of ["jGCaMP8f", "jGCaMP8m", "jGCaMP7f", "Manual"]
-    "risetime": 22         # Half-rise time (milliseconds)
-    "decaytime": 142       # Half-decay time (milliseconds)
-    "dF_F": 0.3            # dF/F0
+    "risetime": 15         # Half-rise time (milliseconds)
+    "decaytime": 80       # Half-decay time (milliseconds)
+    "dF_F": 0.07            # dF/F0
     "photobleaching": 0    # Half-decay time of F0 following exponential function (seconds)
                            # If 0, no photobleaching.
-    "baseline": [1, 1.1]   # baseline (F0)
+    "baseline": [0.5, 2]   # baseline (F0)
                            # each cell sampled from uniform distribution [a, b] as 
                            # F0 depends on protein expression variability.
                            # F = F0(1+dF/F0) + Normal(0, gaussian_noise)
@@ -70,7 +70,7 @@
 
 # Background spikes (Additive noise)
 "background":
-    "firing_rate": [1, 1]        # mean firing rate (Hz)
+    "firing_rate": [0.5, 0.5]        # mean firing rate (Hz)
                                  # For each neuron, mean firing rate ~ uniform distribution range "low" to "high"
     "peak_to_mean": 0            # (Peak firing rate - mean firing rate) / mean firing rate
                                  # If 0, stationary firing. Cannot be larger than 1.
@@ -79,7 +79,7 @@
                                  # Otherwise, phase is independently chosen.
 
     # Currently bursting is only available on stationary firing mode.
-    "burst_lambda": 1            # The number of spikes in each burst follows the Poission process
+    "burst_lambda": 0            # The number of spikes in each burst follows the Poission process
                                  # The number of spikes = 1 + Poisson(lambda=burst_lambda)
     "intra_burst_time": [5, 6]   # min/max time between bursting spikes (milliseconds)
                                  # chosen from uniform distribution

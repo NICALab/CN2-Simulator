@@ -1,12 +1,48 @@
+import multiprocessing as mp
+
 import numpy as np
 from numpy.random import default_rng
 from scipy import sparse
+from scipy.io import savemat
 from tqdm import tqdm
 
 from CN2Simulator.motif_gen import *
 from CN2Simulator.utils.draw_util import create_NLS_neuron, generate_centers, generate_centers_fcc
 
-def create_calcium(spike_time, params, add_noise=False, seed=0):
+def create_calcium_helper(spikeshape, recording_time, spike_time, nid, baseline, photobleaching, add_noise, noise, sample_arr):
+    # change spike time to binning
+        bins = np.zeros(recording_time * 1000)
+        for spiked in spike_time[nid]:
+            if spiked < 0:
+                continue
+            idx = int(spiked // 0.001)
+            if idx >= len(bins):
+                continue
+            bins[idx] += 1
+        
+        # convolve spikes
+        convolved_signal = np.convolve(bins, spikeshape, mode="full")[:recording_time * 1000]
+        
+        # add baseline and noise
+        if photobleaching == 0:
+            baseline_photobleach = 1
+        else:
+            baseline_photobleach = np.linspace(0, recording_time, recording_time*1000)
+            baseline_photobleach = np.exp2(-baseline_photobleach / photobleaching)
+        convolved_signal = baseline * baseline_photobleach * (convolved_signal + 1)
+        if add_noise:
+            convolved_signal += noise
+        
+        # calcium signal must be larger than 0
+        convolved_signal = np.maximum(convolved_signal, 0)
+        
+        # sampling
+        convolved_signal = convolved_signal[sample_arr]
+
+        return convolved_signal, nid
+
+
+def create_calcium(spike_time, params, add_noise=False, seed=0, verbose=True):
     """
     Generate calcium signal based on spike time and params.
     
@@ -46,45 +82,28 @@ def create_calcium(spike_time, params, add_noise=False, seed=0):
     # sample_arr = np.arange(1000/frame_rate, recording_time*1000, 1000/frame_rate).astype(int)
     # sample_arr = sample_arr[sample_arr < recording_time * 1000]
     
-    calcium_signal = []
+    calcium_signal = [[] for _ in range(len(spike_time))]
     # draw single spike shape
     spikeshape = np.hstack((np.linspace(0, 1, num=int(risetime)*2+1),
                             np.exp(-np.arange(0.001, 0.001 * decaytime * 20, 0.001) * np.log(2) / (0.001 * decaytime))
                            )) * dF_F
 
-    for nid in tqdm(range(len(spike_time)), desc="generating calcium signal", ncols=100):
-        # change spike time to binning
-        bins = np.zeros(recording_time * 1000)
-        for spiked in spike_time[nid]:
-            if spiked < 0:
-                continue
-            idx = int(spiked // 0.001)
-            if idx >= len(bins):
-                continue
-            bins[idx] += 1
-        
-        # convolve spikes
-        convolved_signal = np.convolve(bins, spikeshape, mode="full")[:recording_time * 1000]
-        
-        # add baseline and noise
-        baseline = rng.uniform(baseline_low, baseline_high)
-        if photobleaching == 0:
-            baseline_photobleach = 1
-        else:
-            baseline_photobleach = np.linspace(0, recording_time, recording_time*1000)
-            baseline_photobleach = np.exp2(-baseline_photobleach / photobleaching)
-        convolved_signal = baseline * baseline_photobleach * (convolved_signal + 1)
-        if add_noise:
-            convolved_signal += rng.normal(0, noise, recording_time * 1000)
-        
-        # calcium signal must be larger than 0
-        convolved_signal = np.maximum(convolved_signal, 0)
-        
-        # sampling
-        convolved_signal = convolved_signal[sample_arr]
+    pool = mp.Pool()
 
-        calcium_signal.append(convolved_signal)
+    def append_result(result):
+        convolved_signal, nid = result
+        calcium_signal[nid] = convolved_signal
+        # savemat("./generated_data/DeepVID/calcium_signal_{}.mat".format(nid), {"calcium_signal": convolved_signal})
+        if verbose:
+            print(nid)
+
+    for nid in tqdm(range(len(spike_time)), desc="generating calcium signal", ncols=100):
+        pool.apply_async(create_calcium_helper, args=(spikeshape, recording_time, spike_time, nid, rng.uniform(baseline_low, baseline_high),\
+            photobleaching, add_noise, 0, sample_arr), callback=append_result)
     
+    pool.close()
+    pool.join()
+
     calcium_signal = np.array(calcium_signal, dtype=np.float32)
 
     return calcium_signal
