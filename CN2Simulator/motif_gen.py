@@ -69,7 +69,7 @@ def non_motif_gen(params, seed=None, verbose=True):
         
         for NID in range(NIDs):
             non_motif_rate = rng.uniform(firing_rate[0], firing_rate[1])
-            instant_rate = np.maximum(peak_to_mean * np.sin(rad_array + phases[NID]) + non_motif_rate, 0)
+            instant_rate = np.maximum((peak_to_mean * np.sin(rad_array + phases[NID]) + 1) * non_motif_rate, 0)
             spiked = np.nonzero(rng.binomial(1, instant_rate / 1000))[0]
             spike_time[NID] = list(t_array[spiked])
 
