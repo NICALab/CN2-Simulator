@@ -65,7 +65,7 @@ def non_motif_gen(params, seed=None, verbose=True):
             phases = [rng.uniform(0, 2*math.pi) for _ in range(NIDs)]
         # draw spikes
         t_array = np.linspace(1/1000, simulation_time, num=simulation_time*1000)
-        rad_array = (2 * math.pi / oscillation_frequency) * t_array
+        rad_array = (2 * math.pi * oscillation_frequency) * t_array
         
         for NID in range(NIDs):
             non_motif_rate = rng.uniform(firing_rate[0], firing_rate[1])
