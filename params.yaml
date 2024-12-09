@@ -4,7 +4,7 @@
 #########################
 
 "simulation":
-    "unit": 0.1            # The minimum unit of simulation (micromters)
+    "unit": 0.5            # The minimum unit of simulation (micromters)
                            # smaller value can burden process and memory
 
 
@@ -13,13 +13,14 @@
 ########################
 
 # General parameters
-"NIDs": 7891               # Total number of neurons
+"NIDs": 6396                # Total number of neurons
                            # It is automatically set on calcium imaging mode
 
 # Recording parameters:
 "recording":
-    "recording_time": 1000  # Recording time (seconds)
-    "frame_rate": 16        # Frame rate (Hz)
+    "recording_time": 4  # Recording time (seconds)
+    "frame_rate": 120       # Frame rate (Hz)
+    "mode": "decimation"      # one of ["binning", "decimation"]
     "gaussian_noise": 0.05 # standard deviation of Gaussian noise
     "shot_noise": 0.05     # (underdevelopment) Poisson noise
     "microscopy": "LSM"    # one of ["raw", "LSM"(underdevelopment), "LFM"(underdevelopment), "XLFM"(underdevelopment)]
@@ -29,21 +30,28 @@
                            # "XLFM": eXtended field of view LFM
     "z_depth": 100         # depth of focal plane (micrometer) (underdevelopment)
     "pixel_size": 0.8      # pixel size of a camera (micrometer) (underdevelopment)
-    "FOV": [256, 256, 256] # field of view of a camera (pixels) (underdevelopment)
+    "FOV": [256, 256] # field of view of a camera (pixels) (underdevelopment)
                            # can be 2d or 3d
 
 
 # Physiological parameters:
 "physiological":
-    "refractory_period": 5 # Refractory period (milliseconds)
-    "preset": "Manual"   # preset of "risetime", "decaytime", "dF_F"
-                           # one of ["jGCaMP8f", "jGCaMP8m", "jGCaMP7f", "Manual"]
-    "risetime": 15         # Half-rise time (milliseconds)
-    "decaytime": 80       # Half-decay time (milliseconds)
-    "dF_F": 0.07            # dF/F0
+    "refractory_period": 1000 # Refractory period (milliseconds)
+    "indicator": "GECI"     # one of ["GECI", "GEVI"]
+    "preset": "jRGECO1a"   # preset of "risetime", "decaytime", "dF_F"
+                           # one of ["jGCaMP8f", "jGCaMP8m", "jGCaMP7f", "jRCaMP1a", "jRGECO1a", "Manual"]
+    # For GECI
+    "risetime": [25, 25]     # Half-rise time (milliseconds)
+    "decaytime": [350, 350]    # Half-decay time from peak (milliseconds)
+    # For GEVI
+    "width": [3, 3]                 # width of a spike (milliseconds)
+    "subthreshold_std": 0.00         # standard deviation of subthreshold voltage
+    "subthreshold_filter_std": 100  # standard deviation of subthreshold voltage Gaussian filter standard deviation
+    # For both GECI/GEVI
+    "dF_F": [0.1, 0.1]   # dF/F0
     "photobleaching": 0    # Half-decay time of F0 following exponential function (seconds)
                            # If 0, no photobleaching.
-    "baseline": [0.5, 2]   # baseline (F0)
+    "baseline": [0.9, 1.1]     # baseline (F0)
                            # each cell sampled from uniform distribution [a, b] as 
                            # F0 depends on protein expression variability.
                            # F = F0(1+dF/F0) + Normal(0, gaussian_noise)
@@ -61,7 +69,7 @@
     "diameter_nucleus": 5           # diameter of a nucleus of neurons (micrometer)
     "diameter_nucleus_std": 0.20    # standard deviation of a diameter of a nucleus of neurons (micrometer)
     "membrane_thickness": 0.2       # thickness of a membrane of neurons (micrometer)
-    "distance": [5, 20]             # min/max distance between neuron and neuron (micrometer)
+    "distance": [5, 10]             # min/max distance between neuron and neuron (micrometer)
     
 
 ####################
@@ -70,8 +78,9 @@
 
 # Background spikes (Additive noise)
 "background":
-    "firing_rate": [0.5, 0.5]        # mean firing rate (Hz)
+    "firing_rate": [0.75, 0.75]        # mean firing rate (Hz)
                                  # For each neuron, mean firing rate ~ uniform distribution range "low" to "high"
+    "neuron_ratio": 0.5          # Ratio of neurons oscillate
     "peak_to_mean": 0            # (Peak firing rate - mean firing rate) / mean firing rate
                                  # If 0, stationary firing. Cannot be larger than 1.
     "oscillation_frequency": 1   # sinusoidal oscillation frequency (Hz)
@@ -105,9 +114,9 @@
 
 # type 2 motif: Sequentially firing neurons
 "motif_type_2":
-    "firing_rate": 0.3   # firing rate of each motif
+    "firing_rate": 0.1   # firing rate of each motif
     "neurons": 5         # the number of neurons in each motif
-    "motifs": 10         # the number of motifs
+    "motifs": 1         # the number of motifs
     "min_lags": 0        # minimum lag between spikes (milliseconds)
     "max_lags": 100      # maximum lag between spikes (milliseconds)
 

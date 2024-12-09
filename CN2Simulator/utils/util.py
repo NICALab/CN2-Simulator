@@ -30,7 +30,19 @@ def load_params(fname):
         params["physiological"]["risetime"] = 24.8
         params["physiological"]["decaytime"] = 181.9
         params["physiological"]["dF_F"] = 0.21
+    elif params["physiological"]["preset"] == "jRCaMP1a":
+        params["physiological"]["risetime"] = 40
+        params["physiological"]["decaytime"] = 1000
+        params["physiological"]["dF_F"] = 0.15
+    elif params["physiological"]["preset"] == "jRGECO1a":
+        params["physiological"]["risetime"] = 25
+        params["physiological"]["decaytime"] = 250
+        params["physiological"]["dF_F"] = 0.28
     
+    params["physiological"]["risetime"] = [params["physiological"]["risetime"], params["physiological"]["risetime"]]
+    params["physiological"]["decaytime"] = [params["physiological"]["decaytime"], params["physiological"]["decaytime"]]
+    params["physiological"]["dF_F"] = [params["physiological"]["dF_F"], params["physiological"]["dF_F"]]
+
     if params["background"]["intra_burst_time"][0] < params["physiological"]["refractory_period"]:
         warnings.warn("intra burst time is currently shorter than the refractory period")
 

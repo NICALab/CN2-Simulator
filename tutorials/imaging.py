@@ -15,7 +15,7 @@ if __name__=="__main__":
 
     # Convert to calcium imaging format
     calcium_image, ground_truth = draw_calcium_image(params)
-    calcium_image = record(calcium_image, params, seed=0)
+    # calcium_image = record(calcium_image, params, seed=0)
 
     # save spike time and motifs
     ground_truth["spike_time"] = np.array(ground_truth["spike_time"], dtype=object)

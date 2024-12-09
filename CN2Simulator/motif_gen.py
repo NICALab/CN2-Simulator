@@ -24,6 +24,7 @@ def non_motif_gen(params, seed=None, verbose=True):
     NIDs = int(params["NIDs"])
     simulation_time = int(params["recording"]["recording_time"]) # seconds
     refractory_period = params["physiological"]["refractory_period"] # milliseconds
+    neuron_ratio = params["background"]["neuron_ratio"]
     peak_to_mean = params["background"]["peak_to_mean"] # ratio
     firing_rate = params["background"]["firing_rate"] # Hz
     oscillation_frequency = params["background"]["oscillation_frequency"] # Hz

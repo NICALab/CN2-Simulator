@@ -1,13 +1,31 @@
+import os
 import numpy as np
+import h5py
 
-from scipy.io import savemat
+from scipy.io import loadmat, savemat
 
 from CN2Simulator.utils.util import load_params
 from CN2Simulator.motif_gen import *
 from CN2Simulator.calcium_imaging import create_calcium, draw_calcium_image
+from CN2Simulator.voltage_imaging import create_voltage
 
 
 if __name__=="__main__":
+
+    params = load_params("params.yaml")
+
+    params["physiological"]["width"] = [400, 400]
+    params["physiological"]["dF_F"] = [1, 1]
+
+    spike_time, spike_time_motif = non_motif_gen(params, seed=0)
+    # calcium_signal = create_calcium(spike_time, params, seed=file_num+1)
+    voltage_signal = create_voltage(spike_time, params, seed=0)
+    spike_time = np.array(spike_time, dtype=object)
+    savemat("/media/NAS_4/01_data/DUSK_simulation/calcium_concentration_400ms.mat",\
+            {"voltage_signal": voltage_signal, "spike_time": spike_time})
+    
+    exit()
+
     # Load simulation parameters
     params = load_params("params.yaml")
 
@@ -33,7 +51,7 @@ if __name__=="__main__":
     if True:
         calcium_signal = create_calcium(spike_time, params, seed=1)
         spike_time = np.array(spike_time, dtype=object)
-        savemat("/home/minho/Documents/CN2-Simulator/generated_data/20240224_SUPPORT_MX_jRGECO1a.mat", {"calcium_signal": calcium_signal, "spike_time": spike_time})
+        savemat("/media/HDD6/SUPPORTEXT/20231013_jGCaMP8f.mat", {"calcium_signal": calcium_signal, "spike_time": spike_time})
         exit()
         # import pdb; pdb.set_trace()
 

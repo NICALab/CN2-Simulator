@@ -1,0 +1,12 @@
+README.md
+setup.py
+CN2Simul.egg-info/PKG-INFO
+CN2Simul.egg-info/SOURCES.txt
+CN2Simul.egg-info/dependency_links.txt
+CN2Simul.egg-info/not-zip-safe
+CN2Simul.egg-info/requires.txt
+CN2Simul.egg-info/top_level.txt
+SimulMotif/__init__.py
+SimulMotif/calcium_imaging.py
+SimulMotif/motif_gen.py
+SimulMotif/utils.py

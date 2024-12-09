@@ -2,44 +2,51 @@ import multiprocessing as mp
 
 import numpy as np
 from numpy.random import default_rng
-from scipy import sparse
+from scipy import sparse, signal
 from scipy.io import savemat
 from tqdm import tqdm
 
 from CN2Simulator.motif_gen import *
 from CN2Simulator.utils.draw_util import create_NLS_neuron, generate_centers, generate_centers_fcc
 
-def create_calcium_helper(spikeshape, recording_time, spike_time, nid, baseline, photobleaching, add_noise, noise, sample_arr):
-    # change spike time to binning
-        bins = np.zeros(recording_time * 1000)
-        for spiked in spike_time[nid]:
-            if spiked < 0:
-                continue
-            idx = int(spiked // 0.001)
-            if idx >= len(bins):
-                continue
-            bins[idx] += 1
-        
-        # convolve spikes
-        convolved_signal = np.convolve(bins, spikeshape, mode="full")[:recording_time * 1000]
-        
-        # add baseline and noise
-        if photobleaching == 0:
-            baseline_photobleach = 1
-        else:
-            baseline_photobleach = np.linspace(0, recording_time, recording_time*1000)
-            baseline_photobleach = np.exp2(-baseline_photobleach / photobleaching)
-        convolved_signal = baseline * baseline_photobleach * (convolved_signal + 1)
-        if add_noise:
-            convolved_signal += noise
-        
-        # calcium signal must be larger than 0
-        convolved_signal = np.maximum(convolved_signal, 0)
-        
-        # sampling
-        convolved_signal = convolved_signal[sample_arr]
+def create_calcium_helper(current_rise_time, current_decay_time, current_df_f, recording_time,\
+     spike_time, nid, baseline, photobleaching, add_noise, noise, sample_arr):
+    # generate spikeshape
+    spikeshape = np.hstack((np.linspace(0, 1, num=int(current_rise_time)*2+1),
+                            np.exp(-np.arange(0.001, 0.001 * current_decay_time * 20, 0.001) * np.log(2) / (0.001 * current_decay_time))
+                           )) * current_df_f
 
-        return convolved_signal, nid
+    # change spike time to binning
+    bins = np.zeros(recording_time * 1000)
+    for spiked in spike_time[nid]:
+        if spiked < 0:
+            continue
+        idx = int(spiked // 0.001)
+        if idx >= len(bins):
+            continue
+        bins[idx] += 1
+    
+    # convolve spikes
+    # convolved_signal = np.convolve(bins, spikeshape, mode="full")[:recording_time * 1000]
+    convolved_signal = signal.fftconvolve(bins, spikeshape, mode="full")[:recording_time * 1000]
+    
+    # add baseline and noise
+    if photobleaching == 0:
+        baseline_photobleach = 1
+    else:
+        baseline_photobleach = np.linspace(0, recording_time, recording_time*1000)
+        baseline_photobleach = np.exp2(-baseline_photobleach / photobleaching)
+    convolved_signal = baseline * baseline_photobleach * (convolved_signal + 1)
+    if add_noise:
+        convolved_signal += noise
+    
+    # calcium signal must be larger than 0
+    convolved_signal = np.maximum(convolved_signal, 0)
+    
+    # sampling
+    convolved_signal = convolved_signal[sample_arr]
+
+    return convolved_signal, nid
 
 
 def create_calcium(spike_time, params, add_noise=False, seed=0, verbose=True):
@@ -56,9 +63,9 @@ def create_calcium(spike_time, params, add_noise=False, seed=0, verbose=True):
         calcium_signal: calcium signal created (numpy ndarray with shape [NID, bins])
     """
     # check arguments
-    risetime = int(params["physiological"]["risetime"])   # milliseconds
-    decaytime = int(params["physiological"]["decaytime"]) # milliseconds
-    dF_F = float(params["physiological"]["dF_F"])         # ratio
+    risetime = [int(i) for i in params["physiological"]["risetime"]]   # milliseconds
+    decaytime = [int(i) for i in params["physiological"]["decaytime"]] # milliseconds
+    dF_F = [float(i) for i in params["physiological"]["dF_F"]]         # ratio
     photobleaching = float(params["physiological"]["photobleaching"])
     baseline_low = float(params["physiological"]["baseline"][0])
     baseline_high = float(params["physiological"]["baseline"][1])
@@ -84,9 +91,9 @@ def create_calcium(spike_time, params, add_noise=False, seed=0, verbose=True):
     
     calcium_signal = [[] for _ in range(len(spike_time))]
     # draw single spike shape
-    spikeshape = np.hstack((np.linspace(0, 1, num=int(risetime)*2+1),
-                            np.exp(-np.arange(0.001, 0.001 * decaytime * 20, 0.001) * np.log(2) / (0.001 * decaytime))
-                           )) * dF_F
+    # spikeshape = np.hstack((np.linspace(0, 1, num=int(risetime)*2+1),
+    #                         np.exp(-np.arange(0.001, 0.001 * decaytime * 20, 0.001) * np.log(2) / (0.001 * decaytime))
+    #                        )) * dF_F
 
     pool = mp.Pool()
 
@@ -98,7 +105,11 @@ def create_calcium(spike_time, params, add_noise=False, seed=0, verbose=True):
             print(nid)
 
     for nid in tqdm(range(len(spike_time)), desc="generating calcium signal", ncols=100):
-        pool.apply_async(create_calcium_helper, args=(spikeshape, recording_time, spike_time, nid, rng.uniform(baseline_low, baseline_high),\
+        current_rise_time = rng.uniform(risetime[0], risetime[1]+1)
+        current_decay_time = rng.uniform(*decaytime)
+        current_df_f = rng.uniform(*dF_F)
+        pool.apply_async(create_calcium_helper, args=(current_rise_time, current_decay_time, current_df_f,\
+            recording_time, spike_time, nid, rng.uniform(baseline_low, baseline_high),\
             photobleaching, add_noise, 0, sample_arr), callback=append_result)
     
     pool.close()
@@ -148,15 +159,15 @@ def draw_calcium_image(params, seed=0):
     params["NIDs"] = centers.shape[0]
     spike_time, spike_time_motif = non_motif_gen(params, seed=seed)
     # (Type 1) Precise synchronous spikes
-    gt1 = motif_gen(spike_time, spike_time_motif, 1, params, seed=seed+1)
-    # (Type 2) Precise sequential spikes
-    gt2 = motif_gen(spike_time, spike_time_motif, 2, params, seed=seed+2)
-    # (Type 3) Precise temporal pattern
-    gt3 = motif_gen(spike_time, spike_time_motif, 3, params, seed=seed+3)
-    # (Type 4) Rate-based synchronous pattern
-    gt4 = motif_gen(spike_time, spike_time_motif, 4, params, seed=seed+4)
-    # (Type 5) Rate-based sequential pattern
-    gt5 = motif_gen(spike_time, spike_time_motif, 5, params, seed=seed+5)
+    # gt1 = motif_gen(spike_time, spike_time_motif, 1, params, seed=seed+1)
+    # # (Type 2) Precise sequential spikes
+    # gt2 = motif_gen(spike_time, spike_time_motif, 2, params, seed=seed+2)
+    # # (Type 3) Precise temporal pattern
+    # gt3 = motif_gen(spike_time, spike_time_motif, 3, params, seed=seed+3)
+    # # (Type 4) Rate-based synchronous pattern
+    # gt4 = motif_gen(spike_time, spike_time_motif, 4, params, seed=seed+4)
+    # # (Type 5) Rate-based sequential pattern
+    # gt5 = motif_gen(spike_time, spike_time_motif, 5, params, seed=seed+5)
     calcium_signal = create_calcium(spike_time, params, seed=seed+6)
 
     # generated neurons
@@ -190,11 +201,6 @@ def draw_calcium_image(params, seed=0):
     ground_truth = {
         "spike_time": spike_time,
         "spike_time_motif": spike_time_motif,
-        "gt1": gt1,
-        "gt2": gt2,
-        "gt3": gt3,
-        "gt4": gt4,
-        "gt5": gt5,
         "calcium_signal": calcium_signal,
         "gt_neuron_shapes": gt_neuron_shapes
     }
